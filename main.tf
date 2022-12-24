@@ -39,6 +39,24 @@ module "enforce_mfa" {
   manage_own_git_credentials      = true
 }
 
+data "aws_iam_policy_document" "iam_policy_for_billing" {
+  statement {
+    actions   = ["aws-portal:ViewBilling", "aws-portal:ViewUsage"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "billing" {
+  name        = "billing-policy"
+  description = "enable to see biling"
+  policy      = data.aws_iam_policy_document.iam_policy_for_billing.json
+}
+
+resource "aws_iam_group_policy_attachment" "billing" {
+  group      = aws_iam_group.admin.name
+  policy_arn = aws_iam_policy.billing.arn
+}
+
 /*====
 IAM User
 ======*/
